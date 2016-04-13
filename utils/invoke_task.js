@@ -62,14 +62,14 @@ invokeTask.getHandler = function (grunt) {
         }
 
         var context = {
-            done: function (error, result) {
-                if (error === null || typeof(error) === 'undefined') {
-                    context.succeed(result);
-                } else {
-                    context.fail(error);
-                }
-            },
-            succeed: function (result) {
+            awsRequestId: 'LAMBDA_INVOKE',
+            logStreamName: 'LAMBDA_INVOKE',
+            clientContext: clientContext,
+            identity: identity
+        };
+
+        var callback = function(error, results) {
+            if (!error) {
                 if (cwd) {
                     process.chdir(cwd);
                 }
@@ -79,8 +79,7 @@ invokeTask.getHandler = function (grunt) {
                 var msg = (typeof(result) === 'object') ? JSON.stringify(result) : result;
                 grunt.log.writeln((typeof(result) !== 'undefined') ? msg : "Successful!");
                 done(true);
-            },
-            fail: function (error) {
+            } else {
                 if (cwd) {
                     process.chdir(cwd);
                 }
@@ -90,12 +89,8 @@ invokeTask.getHandler = function (grunt) {
                 var msg = (typeof(error) === 'object') ? JSON.stringify(error) : error;
                 grunt.log.writeln((typeof(error) !== 'undefined') ? msg : "Error not provided.");
                 done(false);
-            },
-            awsRequestId: 'LAMBDA_INVOKE',
-            logStreamName: 'LAMBDA_INVOKE',
-            clientContext: clientContext,
-            identity: identity
-        };
+            }
+        }
 
         var lambda = invokeTask.loadFunction(options.file_name);
         var event = JSON.parse(fs.readFileSync(path.resolve(options.event), "utf8"));
