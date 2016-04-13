@@ -68,7 +68,7 @@ invokeTask.getHandler = function (grunt) {
             identity: identity
         };
 
-        var callback = function(error, results) {
+        var callback = function(error, result) {
             if (!error) {
                 if (cwd) {
                     process.chdir(cwd);
